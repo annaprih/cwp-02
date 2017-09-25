@@ -9,13 +9,9 @@ const client = new net.Socket();
 client.setEncoding('utf8');
 
 client.connect(port, function() {
-    console.log('Connected');
-    client.write('\r\nHello, Server!\r\nLove,\r\nClient.\r\n');
-});
+    console.log('Connected to server');
+    client.write('QA');
 
-client.on('data', function(data) {
-    console.log(data);
-    client.destroy();
 });
 
 client.on('close', function() {

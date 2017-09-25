@@ -3,18 +3,30 @@
  */
 const net = require('net');
 const port = 8124;
+let seed = 0;
 
-const server = net.createServer((client) => {
-    console.log('Client connected');
+const server = net.createServer(client => {
+      client.setEncoding('utf8');
+    client.id = Date.now() + seed++;
+    logFile(client.id,`Client ${client.id} is connected`);
 
-    client.setEncoding('utf8');
+    client.once('data', msg => {
 
-    client.on('data', (data) => {
-        console.log(data);
-        client.write('\r\nHello!\r\nRegards,\r\nServer\r\n');
+        if(msg == 'QA'){
+            console.log(client.id, 'Message from client is true');
+            client.write('ACK');
+
+        }
+        else {
+            logFile(client.id, 'Message from client is false');
+            client.write('DEC');
+            client.destroy();
+        }
     });
 
-    client.on('end', () => console.log('Client disconnected'));
+    client.on('end', () => {
+        logFile(client.id, `Client ${client.id} disconnected`)
+    });
 });
 
 server.listen(port, () => {
