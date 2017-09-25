@@ -21,33 +21,43 @@ const server = net.createServer(client => {
     let questions = mixQues(ques);
     client.setEncoding('utf8');
     client.id = Date.now() + seed++;
-    console.log(client.id,`Client ${client.id} is connected`);
+    logFile(client.id,`Client ${client.id} is connected`);
 
     client.once('data', msg => {
 
         if(msg == 'QA'){
-            console.log(client.id, 'Message from client is true');
+            logFile(client.id, 'Message from client is true');
             client.write('ACK', "UTF-8", ans => {
                 client.on('data', question => {
                     let temp = questions.pop();
                     client.write(temp.answer);
-                    console.log(client.id, `Client question: ${question}`);
-                    console.log(client.id, `Server Answer: ${temp.answer}`);
+                    logFile(client.id, `Client question: ${question}`);
+                    logFile(client.id, `Server Answer: ${temp.answer}`);
                 });
             });
         }
         else {
-            console.log(client.id, 'Message from client is false');
+            logFile(client.id, 'Message from client is false');
             client.write('DEC');
             client.destroy();
         }
     });
 
     client.on('end', () => {
-        console.log(client.id, `Client ${client.id} disconnected`)
+        logFile(client.id, `Client ${client.id} disconnected`)
     });
 });
 
+const logFile = (id, data) => {
+    let msg  = data + "\r\n";
+    let pathFile = `${id}.log`;
+    console.log(msg);
+    if(fs.existsSync(pathFile)){
+        fs.appendFileSync(pathFile, msg)
+    }  else {
+        fs.writeFileSync(pathFile, msg);
+    }
+};
 
 server.listen(port, () => {
     console.log(`Server listening on localhost:${port}`);
